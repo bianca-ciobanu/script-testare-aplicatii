@@ -1,5 +1,9 @@
 #!/bin/bash
 source ./measure_time.sh
 source ./syscalls.sh
-measure_time "$1"
-monitor_syscalls "$1"
+source ./libcalls.sh
+source ./input_output.sh
+measure_time "$@"
+monitor_syscalls "$@"
+monitor_libcalls "$@"
+capture_io "$1" "" "output.txt"
