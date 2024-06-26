@@ -1,36 +1,41 @@
 #!/bin/bash
 
 capture_io() {
-    local command=$1
+    local command=./$1
     local input_file=$2
-    local output_file=$3
+    local output_file="output.txt"
+    local error_file="error.txt"
 
     if [[ -f $input_file ]]; then
-        eval $command < $input_file > $output_file
+        $command < $input_file > $output_file 2> $error_file
         echo "Input from file: $(cat $input_file)"
     else
         echo "Enter input (type 'exit' to finish):"
-        # Pregătește un fișier temporar pentru a stoca inputul de la tastatură
-        # temp_input=$(mktemp)
+
+        temp_input=$(mktemp)
         
         while true; do
             read -r user_input
-           if [[ "$user_input" == "exit" ]]; then
+            if [[ "$user_input" == "exit" ]]; then
                 break
             fi
-           temp_input=`echo "$user_input"`
-           #echo $temp_input
+            echo "$user_input" >> $temp_input
         done
-        if [[ -f $temp_input ]]; then
-          eval $command < $temp_input > $output_file
-          else
-          eval $command > $output_file
-        fi
+        
+        $command < $temp_input > $output_file 2> $error_file
+
         echo "Input from keyboard:"
-        echo "$temp_input"
+        cat $temp_input
         
         # Șterge fișierul temporar
-        # rm $temp_input
+        rm $temp_input
+    fi
+    
+    if [[ -s "$error_file" ]]
+    then
+    echo "Error occured:"
+    cat $error_file
+    exit 1
     fi
 
     echo "Output: $(cat $output_file)"
